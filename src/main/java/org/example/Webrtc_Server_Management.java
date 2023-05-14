@@ -1,15 +1,20 @@
 package org.example;
 
+import org.example.bds_sers.Message_Utils;
+import org.java_websocket.WebSocket;
+
 public class Webrtc_Server_Management {
     Webrtc_Server webrtcServer;
     static int Prot;
+    static WebSocket webSocket;
+    static Message_Utils messageUtils;
 
-    public Webrtc_Server getWebrtcServer() {
-        return webrtcServer;
+    public Message_Utils getMessageUtils() {
+        return messageUtils;
     }
 
-    public void setWebrtcServer(Webrtc_Server webrtcServer) {
-        this.webrtcServer = webrtcServer;
+    public static void setMessageUtils(Message_Utils messageUtilsa) {
+        messageUtils = messageUtilsa;
     }
 
     public static void setProt(int prot) {
@@ -20,8 +25,8 @@ public class Webrtc_Server_Management {
     Webrtc_Server_Management()
     {
         webrtcServer=new Webrtc_Server(Prot);
+        setMessageUtils(new Message_Utils());
         webrtcServer.start();
-        setWebrtcServer(webrtcServer);
         setServer(true);
     }
     public static Webrtc_Server_Management getInstance()

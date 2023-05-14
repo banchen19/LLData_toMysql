@@ -58,7 +58,6 @@ public class File_Json {
     static Ser file_to_json(JsonObject jsonObject,String server_name_key) {
         Ser ser = null;
         for (String key : jsonObject.keySet()) {
-            System.out.println(jsonObject.get(server_name_key));
             JsonObject itemObject = jsonObject.getAsJsonObject(server_name_key);
             String licenseKey = itemObject.get("server_licenseKey").getAsString();
             ser = new Ser(key, licenseKey);

@@ -74,6 +74,7 @@ public class YAMLWriter {
                 //jdbc:mysql://localhost:3306/mydatabase
                 String url = "jdbc:mysql://" + ip + ":" + port + "/" + dataname;
                 Mysql_Management.setConnection(Mysql_DBUtil.connect(url, username, password));
+                System.out.println("MySQL数据库连接完成");
             } else {
                 System.out.println("未找到MySQL配置");
             }
