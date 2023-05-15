@@ -5,9 +5,13 @@
 ## llse插件：[bc_wsql.llse.js](plugin%2Fbc_wsql.llse.js)
 
 ## jar下载： [lldata_tomysql-1.1.jar](Download_jar%2Flldata_tomysql-1.1.jar)
-
 ***
-
+# 版本
+| 版本  | 已实现同步     |
+|-----|-----------|
+| 1.1 | 背包、末影箱、药水效果 |
+| 1.2 | 聊天        |
+***
 ## 已实现同步数据：
 
 背包 **✓**
@@ -122,14 +126,14 @@ win版本：于 lldata_tomysql-`(版本号)`.jar **一个目录文件夹中**创
 
 ```
  @echo off
- java -jar lldata_tomysql-1.1.jar
+ java -jar lldata_tomysql-1.2.jar
  pause
 ```
 
 其他系统：jdk16和MySQL数据库（注意看前面的：**非常可能出现的问题**），配置好环境，使用如下指令
 
 ```
- java -jar lldata_tomysql-1.1.jar
+ java -jar lldata_tomysql-1.2.jar
 ```
 
 ***
