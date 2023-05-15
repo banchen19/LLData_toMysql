@@ -5,6 +5,12 @@ const wsc = new WSClient();
 var jsonArray_text;
 var pl = null;
 var all_msg;
+const CONFIG_int = {
+    server_licensename: "ser02",
+    server_licenseKey: "1234567890",
+    ser_uri:"ws://127.0.0.1:8887"
+};
+/***********************************初始化******************************************* */
 /************************************监听组********************************* */
 //服务器启动
 mc.listen("onServerStarted", () => {
@@ -76,15 +82,10 @@ wsc.listen("onLostConnection", (code) => {
 });
 
 /***************************************监听组分割线*********************************** */
-const CONFIG_int = {
-    server_licensename: "ser02",
-    server_licenseKey: "1234567890"
-};
 
-/***********************************初始化******************************************* */
 
 function connectWebSocket() {
-    if (wsc.connect("ws://127.0.0.1:8887")) {
+    if (wsc.connect(CONFIG_int.ser_uri)) {
         colorLog("green", "[同步系统]:连接成功");
     } else {
         colorLog("green", "[同步系统]:连接失败");
@@ -182,8 +183,8 @@ function bc_log(s) {
 }
 /*******************************获取信息************************************************* */
 /**
- * 
- * @param {玩家对象} pl 
+ *
+ * @param {玩家对象} pl
  * @returns 包含背包、副手、末影箱、盔甲栏
  */
 function pl_json(pl) {

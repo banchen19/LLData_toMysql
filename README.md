@@ -141,16 +141,19 @@ win版本：于 lldata_tomysql-`(版本号)`.jar **一个目录文件夹中**创
 
 首先在data.json里面添加你想要添加服务端接口出来，一次只能连接一个的，防止有人捣乱。
 
-配置好了以后呢，你打开llse插件。找到初始化服务端
+配置好了以后呢，你打开[bc_wsql.llse12.js](plugin%2Fbc_wsql.llse12.js)插件开头。
 
+看到这个：
 ```
 const CONFIG_int = {
     server_licensename: "ser02",
-    server_licenseKey: "1234567890"
+    server_licenseKey: "1234567890",
+    ser_uri:"ws://127.0.0.1:8887"
 };
 ```
+ser_uri： 填你服务端的IP地址和端口  例如：ws://llbds.com:8887
 
-把这里的server_licensename改的跟data.json里面的一样，密钥也是噢。不一样连接不上的。
+把这里的server_licensename和server_licenseKey跟data.json里面的一样，密钥也是噢。不一样连接不上的（连接成功但是一旦开始处理数据会被断开）。
 ## 到这里，启动与自定义自己就算是完成了。
 # 原理解释
 
