@@ -48,7 +48,7 @@ public class YAMLWriter {
 //        config.put("url", "jdbc:mysql://localhost:3306/mydatabase");
         config.put("ip", "localhost");
         config.put("port", 3306);
-        config.put("dataname", "bc_mysql");
+        config.put("dbname", "bc_mysql");
         config.put("username", "bc");
         config.put("password", "123456");
         config.put("mysql_tb_name", "bc_bds_players_data");
@@ -68,13 +68,13 @@ public class YAMLWriter {
             if (mysqlConfig != null) {
                 String ip = (String) mysqlConfig.get("ip");
                 int port = (int) mysqlConfig.get("port");
-                String dataname = (String) mysqlConfig.get("dataname");
+                String dataname = (String) mysqlConfig.get("dbname");
                 String username = (String) mysqlConfig.get("username");
                 String password = (String) mysqlConfig.get("password");
-
+                String mysql_tb_name = (String) mysqlConfig.get("mysql_tb_name");
                 //jdbc:mysql://localhost:3306/mydatabase
                 String url = "jdbc:mysql://" + ip + ":" + port + "/" + dataname;
-                Mysql_Management.setMysql_ws_e(new Mysql_WS_E(ip,port,dataname,username,password));
+                Mysql_Management.setMysql_ws_e(new Mysql_WS_E(ip,port,mysql_tb_name,username,password));
                 Mysql_Management.setConnection(Mysql_DBUtil.connect(url, username, password));
                 System.out.println("MySQL数据库连接完成");
             } else {
