@@ -5,12 +5,6 @@ const wsc = new WSClient();
 var jsonArray_text;
 var pl = null;
 var all_msg;
-const CONFIG_int = {
-    server_licensename: "ser02",
-    server_licenseKey: "1234567890",
-    ser_uri:"ws://127.0.0.1:8887"
-};
-/***********************************初始化******************************************* */
 /************************************监听组********************************* */
 //服务器启动
 mc.listen("onServerStarted", () => {
@@ -82,7 +76,13 @@ wsc.listen("onLostConnection", (code) => {
 });
 
 /***************************************监听组分割线*********************************** */
+const CONFIG_int = {
+    server_licensename: "ser02",
+    server_licenseKey: "1234567890",
+    ser_uri:"ws://127.0.0.1:8887"
+};
 
+/***********************************初始化******************************************* */
 
 function connectWebSocket() {
     if (wsc.connect(CONFIG_int.ser_uri)) {
@@ -130,12 +130,18 @@ function updata(player) {
 }
 
 //玩家数据同步
-function pl_con_s(pl, play_ct_Inventory, play_ct_OffHand, play_ct_EnderChest, play_ct_Armor, pl_alleff) {
+function pl_con_s(pl, play_ct_Inventory, play_ct_OffHand, play_ct_EnderChest, play_ct_Armor, pl_alleff,pl_xp) {
     pl_setct_Inventory(pl, play_ct_Inventory);
     pl_setct_OffHand(pl, play_ct_OffHand);
     pl_setct_EnderChest(pl, play_ct_EnderChest);
     pl_setct_Armor(pl, play_ct_Armor);
-    pl_setalleff(pl, pl_alleff)
+    pl_setalleff(pl, pl_alleff);
+    pl_setxp(pl,pl_xp);
+}
+//设置玩家基岩总值
+function pl_setxp(pl,pl_xp)
+{
+    pl_setxp(pl,pl_xp)
 }
 //设置同步背包
 function pl_setct_Inventory(pl, play_ct_Inventory) {
@@ -194,7 +200,7 @@ function pl_json(pl) {
         "EnderChest": pl_EnderChest(pl),
         "Armor": pl_Armor(pl),
         "AllEffects": pl_AllEffects(pl),
-        "能力": "aaaaa",
+        "xp": pl.getTotalExperience(),
         "bmd": 0,
         "quanxian": 0
     }
