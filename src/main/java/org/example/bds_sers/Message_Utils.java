@@ -24,7 +24,6 @@ public class Message_Utils {
 
     public static void Message(WebSocket webSocket,String message) throws IOException, SQLException {
         //验证这个ws与账号和密钥是否已经被绑定
-
         System.out.println("接收消息来自：" + webSocket.getRemoteSocketAddress().toString());
         Client client = message_to_jsonObject(message);
         if (Webrtc_Server_Management.getInstance().getGenericDatabase().findById(client.server_name) == null) {
@@ -82,6 +81,17 @@ public class Message_Utils {
                         } catch (SQLException e) {
                             e.printStackTrace();
                             // 处理更新操作的异常
+                        }
+                        break;
+                    case "chat":
+                        List<WebSocket> webSockets=Webrtc_Server_Management.getInstance().getGenericDatabase().getAllItems();
+                        for (WebSocket webSocket1 : webSockets)
+                        {
+                            JsonObject serverObject = new JsonObject();
+                            serverObject.addProperty("text", client.sql);
+                            serverObject.addProperty("type", "chat");
+                            serverObject.addProperty("tf", true);
+                            webSocket1.send(serverObject.toString());
                         }
                         break;
                     case "Delete":
@@ -190,6 +200,7 @@ public class Message_Utils {
         JsonObject serverObject = new JsonObject();
         serverObject.addProperty("text", text);
         serverObject.addProperty("tf", tf);
+        serverObject.addProperty("type", "updata");
         return serverObject.toString();
     }
     //解析json

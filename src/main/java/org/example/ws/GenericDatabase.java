@@ -1,7 +1,9 @@
 package org.example.ws;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class GenericDatabase<T, ID> {
@@ -32,9 +34,9 @@ public class GenericDatabase<T, ID> {
         }
     }
 
-    public void printAllItems() {
-        for (T item : data.values()) {
-            System.out.println(item);
-        }
+    public List<T> getAllItems() {
+        List<T> itemList = new ArrayList<>(data.values());
+        return itemList;
     }
+
 }
