@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.example.bds_sers.Ser;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -35,7 +34,7 @@ public class File_Json {
      * @return 返回Ser对象
      * @throws IOException
      */
-    public static Ser read_file_json(String filePath, String server_name) throws IOException {
+    public static boolean read_file_json(String filePath, String server_name, String key) throws IOException {
         JsonObject jsonObject = null;
         BufferedReader br = new BufferedReader(
                 new InputStreamReader(Files.newInputStream(Paths.get(filePath)), StandardCharsets.UTF_8));
@@ -47,20 +46,23 @@ public class File_Json {
         br.close();
         JsonParser parser = new JsonParser();
         jsonObject = parser.parse(sb.toString()).getAsJsonObject();
-        return file_to_json(jsonObject,server_name);
+        return file_to_json(jsonObject, server_name, key);
     }
 
     /**
-     *
-     * @param jsonObject   传入json对象
-     * @return  返回Ser对象
+     * @param jsonObject 传入json对象
+     * @return 返回Ser对象
      */
-    static Ser file_to_json(JsonObject jsonObject,String server_name_key) {
-        Ser ser = null;
-        for (String key : jsonObject.keySet()) {
-            JsonObject itemObject = jsonObject.getAsJsonObject(server_name_key);
-            String licenseKey = itemObject.get("server_licenseKey").getAsString();
-            ser = new Ser(key, licenseKey);
+    static boolean file_to_json(JsonObject jsonObject, String server_name_key, String serkey) {
+        boolean ser = false;
+        JsonObject itemObject = jsonObject.getAsJsonObject(server_name_key);
+        String licenseKey = itemObject.get("server_licenseKey").getAsString();
+        if (licenseKey.equals(serkey)) {
+            System.out.println("密钥验证成功");
+            ser=true;
+        }else {
+            System.out.println("密钥验证失败");
+            ser=false;
         }
         return ser;
     }

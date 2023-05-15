@@ -1,4 +1,4 @@
-package org.example;
+package org.example.ws;
 
 import org.example.bds_sers.Message_Utils;
 import org.java_websocket.WebSocket;
@@ -6,7 +6,6 @@ import org.java_websocket.WebSocket;
 public class Webrtc_Server_Management {
     Webrtc_Server webrtcServer;
     static int Prot;
-    static WebSocket webSocket;
     static Message_Utils messageUtils;
 
     public Message_Utils getMessageUtils() {
@@ -22,13 +21,7 @@ public class Webrtc_Server_Management {
     }
 
     private static Webrtc_Server_Management instance;
-    Webrtc_Server_Management()
-    {
-        webrtcServer=new Webrtc_Server(Prot);
-        setMessageUtils(new Message_Utils());
-        webrtcServer.start();
-        setServer(true);
-    }
+    GenericDatabase genericDatabase;
     public static Webrtc_Server_Management getInstance()
     {
         if (instance == null) {
@@ -46,4 +39,20 @@ public class Webrtc_Server_Management {
         isServer = server;
     }
 
+    Webrtc_Server_Management()
+    {
+        webrtcServer=new Webrtc_Server(Prot);
+        setMessageUtils(new Message_Utils());
+        webrtcServer.start();
+        setServer(true);
+        genericDatabase = new GenericDatabase<>();
+    }
+
+    public GenericDatabase getGenericDatabase() {
+        return genericDatabase;
+    }
+
+    public void setGenericDatabase(GenericDatabase genericDatabase) {
+        this.genericDatabase = genericDatabase;
+    }
 }

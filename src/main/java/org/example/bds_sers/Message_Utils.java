@@ -1,11 +1,10 @@
 package org.example.bds_sers;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.example.Webrtc_Server;
-import org.example.Webrtc_Server_Management;
 import org.example.sql.Mysql_Management;
+import org.example.sql.Mysql_WS_E;
+import org.example.ws.Webrtc_Server_Management;
 import org.java_websocket.WebSocket;
 
 import java.io.IOException;
@@ -24,93 +23,94 @@ public class Message_Utils {
     //接收json数据
 
     public static void Message(WebSocket webSocket,String message) throws IOException, SQLException {
+        //验证这个ws与账号和密钥是否已经被绑定
 
         System.out.println("接收消息来自：" + webSocket.getRemoteSocketAddress().toString());
         Client client = message_to_jsonObject(message);
-        Ser serverData = read_file_json(filePath, client.server_name);
-        if (serverData.server_licensename.equals(client.server_name)&&serverData.server_licenseKey.equals(client.server_key)) {
-        }
-        if (serverData.server_licensename.equals(client.server_name) &&
-                serverData.server_licenseKey.equals(client.server_key)) {
-            String sqltext = client.sql;
-            switch (client.type) {
-                case "Insert":
-                    player = js_arr_toPlayer(sqltext);
-                    String insertSql = "INSERT INTO bc_bds_players_data (xuid, server_name, pos, nbt_data) VALUES (?, ?, ?, ?)";
-                    try (PreparedStatement statement = Mysql_Management.getConnection().prepareStatement(insertSql)) {
-                        statement.setString(1, player.getXuid());
-                        statement.setString(2, player.getServerName());
-                        statement.setString(3, player.getPos());
-                        statement.setString(4, player.getNbtData());
-                        int rowsAffected = statement.executeUpdate();
+        if (Webrtc_Server_Management.getInstance().getGenericDatabase().findById(client.server_name) == null) {
+            Webrtc_Server_Management.getInstance().getGenericDatabase().save(client.server_name,webSocket);
+        } else if (Webrtc_Server_Management.getInstance().getGenericDatabase().findById(client.server_name) == webSocket) {
+            boolean serverData = read_file_json(filePath, client.server_name, client.server_key);
+            if (serverData) {
+                System.out.println("请求类型：" + client.type);
+                String sqltext = client.sql;
+                switch (client.type) {
+                    case "Insert":
+                        player = js_arr_toPlayer(sqltext);
+                        Mysql_Management.getInstance().getMysql_ws_e();
+                        String insertSql = "INSERT INTO " + Mysql_WS_E.dataname + " (xuid, server_name, pos, nbt_data) VALUES (?, ?, ?, ?)";
+                        try (PreparedStatement statement = Mysql_Management.getConnection().prepareStatement(insertSql)) {
+                            statement.setString(1, player.getXuid());
+                            statement.setString(2, player.getServerName());
+                            statement.setString(3, player.getPos());
+                            statement.setString(4, player.getNbtData());
+                            int rowsAffected = statement.executeUpdate();
 
-                        if (rowsAffected > 0) {
-                            System.out.println("插入成功");
-                        } else {
-                            System.out.println("插入失败");
+                            if (rowsAffected > 0) {
+                                System.out.println("插入成功");
+                            } else {
+                                System.out.println("插入失败");
+                            }
+                        } catch (SQLIntegrityConstraintViolationException e) {
+                            // 处理唯一性约束冲突的情况
+                            System.out.println(e.getMessage());
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            // 处理插入操作的异常
                         }
-                    } catch (SQLIntegrityConstraintViolationException e) {
-                        // 处理唯一性约束冲突的情况
-                        webSocket.send(re_json(null, true));
-                        // 或者执行其他处理逻辑
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                        // 处理插入操作的异常
-                    }
-                    break;
-                case "Update":
-                    // SQL插入语句
-                    player = js_arr_toPlayer(sqltext);
-                    String updateSql = "UPDATE bc_bds_players_data SET server_name = ?, pos = ?, nbt_data = ? WHERE xuid = ?";
+                        break;
+                    case "Update":
+                        // SQL插入语句
+                        player = js_arr_toPlayer(sqltext);
+                        Mysql_Management.getInstance().getMysql_ws_e();
+                        String updateSql = "UPDATE " + Mysql_WS_E.dataname + " SET server_name = ?, pos = ?, nbt_data = ? WHERE xuid = ?";
 
-                    try (PreparedStatement statement = Mysql_Management.getConnection().prepareStatement(updateSql)) {
-                        // 设置更新语句的参数值
-                        statement.setString(1, player.getServerName());
-                        statement.setString(2, player.getPos());
-                        statement.setString(3, player.getNbtData());
-                        statement.setString(4, player.getXuid());
+                        try (PreparedStatement statement = Mysql_Management.getConnection().prepareStatement(updateSql)) {
+                            // 设置更新语句的参数值
+                            statement.setString(1, player.getServerName());
+                            statement.setString(2, player.getPos());
+                            statement.setString(3, player.getNbtData());
+                            statement.setString(4, player.getXuid());
 
-                        int rowsAffected = statement.executeUpdate();
+                            int rowsAffected = statement.executeUpdate();
 
-                        if (rowsAffected > 0) {
-                            System.out.println("更新成功");
-                        } else {
-                            System.out.println("更新失败");
+                            if (rowsAffected > 0) {
+                                System.out.println("更新成功");
+                            } else {
+                                System.out.println("更新失败");
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            // 处理更新操作的异常
                         }
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                        // 处理更新操作的异常
-                    }
-                    break;
-                case "Delete":
-                    // SQL删除语句
-                    if (Mysql_Management.getInstance().getMysqlDbUtil().executeUpdate(sqltext) != 0) {
-                        System.out.println("已执行来自客户端：" + webSocket.getRemoteSocketAddress());
-                    } else {
-                    }
-                    break;
-                case "Select":
-                    player = js_arr_toPlayer(sqltext);
-                    String xuid = player.xuid; // 用于查询的xuid值
-                    String SelectSql = "SELECT * FROM bc_bds_players_data WHERE xuid = ?";
-                    try (PreparedStatement statement = Mysql_Management.getConnection().prepareStatement(SelectSql)) {
-                        statement.setString(1, xuid);
-                        ResultSet rs = statement.executeQuery();
-                        if (rs.next()) {
-                            // 数据库返回了结果集
-                            send(webSocket,rs); // 执行你的send方法，传入结果集rs
-                        } else {
-                            System.out.println("没有找到匹配的记录");
-                            send(webSocket,rs); // 执行你的send方法，传入结果集rs
+                        break;
+                    case "Delete":
+                        // SQL删除语句
+                        System.out.println("尚未开发删除语句");
+//                    if (Mysql_Management.getInstance().getMysqlDbUtil().executeUpdate(sqltext) != 0) {
+//                        System.out.println("已执行来自客户端：" + webSocket.getRemoteSocketAddress());
+//                    } else {
+//                    }
+                        break;
+                    case "Select":
+                        player = js_arr_toPlayer(sqltext);
+                        String xuid = player.xuid; // 用于查询的xuid值
+                        Mysql_Management.getInstance().getMysql_ws_e();
+                        String selectSql = "SELECT * FROM " + Mysql_WS_E.dataname + " WHERE xuid = ?";
+                        try (PreparedStatement statement = Mysql_Management.getConnection().prepareStatement(selectSql)) {
+                            statement.setString(1, xuid);
+                            ResultSet rs = statement.executeQuery();
+                            send(webSocket, rs, rs.next()); // 执行你的 send 方法，传入结果集 rs
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            // 处理查询操作的异常
                         }
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                        // 处理查询操作的异常
-                    }
-                    break;
+                        break;
+                }
             }
+        }else {
+            webSocket.close();
         }
-        //许可密钥验证
     }
 
     /**
@@ -147,9 +147,10 @@ public class Message_Utils {
     }
 
     // 发送消息
-    static void send(WebSocket webSocket, ResultSet resultSet) throws SQLException {
+    static void send(WebSocket webSocket, ResultSet resultSet, boolean next) throws SQLException {
         List<Map<String, Object>> resultList = new ArrayList<>();
-        while (resultSet.next()) {
+
+        while (next) {
             Map<String, Object> rowMap = new HashMap<>();
             ResultSetMetaData metaData = resultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
@@ -158,25 +159,33 @@ public class Message_Utils {
                 Object value = resultSet.getObject(columnName);
                 rowMap.put(columnName, value);
             }
+
             resultList.add(rowMap);
+            next = resultSet.next(); // 移动结果集指针
         }
-        resultSet.close();
-        boolean hasNext = !resultList.isEmpty();
-        if (hasNext) {
-            String xuid = (String) resultList.get(0).get("xuid");
-            String server_name = (String) resultList.get(0).get("server_name");
-            String pos = (String) resultList.get(0).get("pos");
-            String nbt_data = (String) resultList.get(0).get("nbt_data");
+
+        if (!resultList.isEmpty()) {
+            Map<String, Object> firstRow = resultList.get(0);
+            String xuid = (String) firstRow.get("xuid");
+            String serverName = (String) firstRow.get("server_name");
+            String pos = (String) firstRow.get("pos");
+            String nbtData = (String) firstRow.get("nbt_data");
+
             JsonObject serverObject = new JsonObject();
             serverObject.addProperty("xuid", xuid);
-            serverObject.addProperty("server_name", server_name);
+            serverObject.addProperty("server_name", serverName);
             serverObject.addProperty("pos", pos);
-            serverObject.addProperty("nbt_data", nbt_data);
-            webSocket.send(re_json(serverObject.toString(), hasNext));
+            serverObject.addProperty("nbt_data", nbtData);
+            System.out.println("有数据");
+            webSocket.send(re_json(serverObject.toString(), true));
         } else {
-            webSocket.send(re_json("无数据", hasNext));
+            System.out.println("无数据");
+            webSocket.send(re_json("无数据", false));
         }
+
+        resultSet.close();
     }
+
     static String re_json(String text, boolean tf) {
         JsonObject serverObject = new JsonObject();
         serverObject.addProperty("text", text);

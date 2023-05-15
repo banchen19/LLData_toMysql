@@ -1,8 +1,9 @@
 package org.example.ini;
 
-import org.example.Webrtc_Server_Management;
+import org.example.ws.Webrtc_Server_Management;
 import org.example.sql.Mysql_DBUtil;
 import org.example.sql.Mysql_Management;
+import org.example.sql.Mysql_WS_E;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -73,6 +74,7 @@ public class YAMLWriter {
 
                 //jdbc:mysql://localhost:3306/mydatabase
                 String url = "jdbc:mysql://" + ip + ":" + port + "/" + dataname;
+                Mysql_Management.setMysql_ws_e(new Mysql_WS_E(ip,port,dataname,username,password));
                 Mysql_Management.setConnection(Mysql_DBUtil.connect(url, username, password));
                 System.out.println("MySQL数据库连接完成");
             } else {

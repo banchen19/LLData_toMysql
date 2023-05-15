@@ -1,9 +1,4 @@
-package org.example;
-
-import org.java_websocket.WebSocket;
-
-import java.security.PublicKey;
-import java.util.List;
+package org.example.ws;
 
 public class WebSocketUtils_Server {
     /**

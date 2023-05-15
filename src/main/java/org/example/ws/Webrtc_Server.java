@@ -1,4 +1,4 @@
-package org.example;
+package org.example.ws;
 
 import org.example.bds_sers.Message_Utils;
 import org.example.sql.Mysql_Management;
@@ -23,14 +23,16 @@ public class Webrtc_Server extends WebSocketServer {
     }
 
     @Override
-    public void onClose(WebSocket webSocket, int i, String s, boolean b) {
-        System.out.println(webSocket.getRemoteSocketAddress().toString()+"已断开连接");
+    public void onClose(WebSocket webSocket, int code, String reason, boolean remote) {
+        // 连接关闭时的操作
+        Webrtc_Server_Management.getInstance().getGenericDatabase().delete(webSocket);
+        System.out.println("WebSocket连接关闭: " + webSocket.getRemoteSocketAddress() + "，code: " + code + "，reason: " + reason + "，remote: " + remote);
     }
 
     @Override
     public void onMessage(WebSocket webSocket, String message) {
         try {
-            Webrtc_Server_Management.getInstance().getMessageUtils().Message(webSocket,message);
+            Message_Utils.Message(webSocket,message);
         } catch (IOException | SQLException e) {
             throw new RuntimeException(e);
         }
