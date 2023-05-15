@@ -2,7 +2,7 @@
 
  ***
 
-## llse插件：[bc_wsql.llse11.js](https://github.com/banchen19/LLData_toMysql/blob/master/plugin/)
+## llse插件：[bc_wsql.llse12.js](https://github.com/banchen19/LLData_toMysql/blob/master/plugin/)
 
 ## jar下载： [lldata_tomysql-1.2.jar](Download_jar%2Flldata_tomysql-1.1.jar)
 ***
