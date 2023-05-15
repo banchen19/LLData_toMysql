@@ -2,9 +2,9 @@
 
  ***
 
-## llse插件：[bc_wsql.llse.js](plugin%2Fbc_wsql.llse.js)
+## llse插件：[bc_wsql.llse11.js](plugin%2Fbc_wsql.llse.js)
 
-## jar下载： [lldata_tomysql-1.1.jar](Download_jar%2Flldata_tomysql-1.1.jar)
+## jar下载： [lldata_tomysql-1.2.jar](Download_jar%2Flldata_tomysql-1.1.jar)
 ***
 # 版本
 | 版本  | 已实现同步     |

@@ -1,9 +1,0 @@
-mysql:
-  password: '123456'
-  port: 3306
-  ip: localhost
-  dataname: bc_mysql
-  mysql_tb_name: bc_bds_players_data
-  username: bc
-myws:
-  port: 8887
