@@ -1,0 +1,11 @@
+{
+  "ser01": {
+    "server_licenseKey": "1234567890"
+  },
+  "ser02": {
+    "server_licenseKey": "1234567890"
+  },
+  "ser03": {
+    "server_licenseKey": "1234567890"
+  }
+}
