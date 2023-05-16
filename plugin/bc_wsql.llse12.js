@@ -2,14 +2,42 @@
 /// <reference path="e:\bds_api/dts/helperlib/src/index.d.ts"/> 
 /*************************************顶部初始化******************************* */
 const wsc = new WSClient();
-var jsonArray_text;
 var pl = null;
 var all_msg;
+var path = ".\\plugins\\BC\\bc_mysqlconfig\\config.json";
+let config_data = {
+    "ws://127.0.0.1:8887": {
+        server_licensename: "ser02",
+        server_licenseKey: "1234567890"
+    }
+}
+var CONFIG_int = data.openConfig(path, "json", JSON.stringify(config_data));
+/***********************************初始化******************************************* */
 /************************************监听组********************************* */
 //服务器启动
 mc.listen("onServerStarted", () => {
     bc_log("作者qq:738270846,邮箱: banchen8964@gmail.com");
-    connectWebSocket();
+    var fileContent = File.readFrom(path);
+    var stockData = JSON.parse(fileContent);
+    var stockInfoArray = []; // 存放stockName和server_licensename的数组
+
+    for (var stockName in stockData) {
+        var stockInfo = stockData[stockName];
+        var stockInfoEntry = {
+            stockName: stockName,
+            licensename: stockInfo.server_licensename
+        };
+        stockInfoArray.push(stockInfoEntry);
+    }
+
+    // 循环判定连接是否有效
+    for (var i = 0; i < stockInfoArray.length; i++) {
+        if (connectWebSocket(stockInfoArray[i].stockName)) {
+            //连接成功跳出循环
+            break;
+        }
+    }
+    // log(stockInfoArray[0].stockName)// 测试语句
 });
 //玩家加入游戏
 mc.listen("onJoin", (play) => {
@@ -34,8 +62,7 @@ mc.listen("onEffectAdded", (pl) => {
 function handleTextReceived(msg) {
     const js_msg = JSON.parse(msg);
     if (js_msg.tf) {
-        switch(js_msg.type)
-        {
+        switch (js_msg.type) {
             case "updata":
                 let jsonArray_t = JSON.parse(js_msg.text);
                 const play_xuid = jsonArray_t.xuid;
@@ -46,8 +73,7 @@ function handleTextReceived(msg) {
                 updata(players)
                 break;
             case "chat":
-                if(all_msg!=js_msg.text)
-                {
+                if (all_msg != js_msg.text) {
                     //广播消息
                     mc.broadcast(js_msg.text)
                 }
@@ -76,21 +102,17 @@ wsc.listen("onLostConnection", (code) => {
 });
 
 /***************************************监听组分割线*********************************** */
-const CONFIG_int = {
-    server_licensename: "ser02",
-    server_licenseKey: "1234567890",
-    ser_uri:"ws://127.0.0.1:8887"
-};
 
-/***********************************初始化******************************************* */
 
-function connectWebSocket() {
-    if (wsc.connect(CONFIG_int.ser_uri)) {
+function connectWebSocket(ser_uri) {
+    if (wsc.connect(ser_uri)) {
         colorLog("green", "[同步系统]:连接成功");
+        return true;
     } else {
         colorLog("green", "[同步系统]:连接失败");
-        connectWebSocket();
+        return false;
     }
+    return false;
 }
 /**************************************操作以及返回更新****************************************** */
 //初步查询判断插入
@@ -130,18 +152,17 @@ function updata(player) {
 }
 
 //玩家数据同步
-function pl_con_s(pl, play_ct_Inventory, play_ct_OffHand, play_ct_EnderChest, play_ct_Armor, pl_alleff,pl_xp) {
+function pl_con_s(pl, play_ct_Inventory, play_ct_OffHand, play_ct_EnderChest, play_ct_Armor, pl_alleff, pl_xp) {
     pl_setct_Inventory(pl, play_ct_Inventory);
     pl_setct_OffHand(pl, play_ct_OffHand);
     pl_setct_EnderChest(pl, play_ct_EnderChest);
     pl_setct_Armor(pl, play_ct_Armor);
     pl_setalleff(pl, pl_alleff);
-    pl_setxp(pl,pl_xp);
+    pl_setxp(pl, pl_xp);
 }
 //设置玩家基岩总值
-function pl_setxp(pl,pl_xp)
-{
-    pl_setxp(pl,pl_xp)
+function pl_setxp(pl, pl_xp) {
+    pl_setxp(pl, pl_xp)
 }
 //设置同步背包
 function pl_setct_Inventory(pl, play_ct_Inventory) {
@@ -275,7 +296,7 @@ function pl_setalleff(pl, pl_alleff) {
 
     }
 }
-mc.listen("onChat",(pl,msg)=>{
-    all_msg='['+CONFIG_int.server_licensename+'] '+pl.realName+"> "+msg
+mc.listen("onChat", (pl, msg) => {
+    all_msg = '[' + CONFIG_int.server_licensename + '] ' + pl.realName + "> " + msg
     sendQuery("chat", all_msg);
 })
