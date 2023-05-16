@@ -64,7 +64,7 @@ public class Mysql_DBUtil {
                 "id INT PRIMARY KEY AUTO_INCREMENT," +
                 "xuid VARCHAR(50) NOT NULL UNIQUE," +
                 "server_name VARCHAR(100) NOT NULL," +
-                "pos VARCHAR(100) NOT NULL," +
+                "whitelist BOOLEAN," +
                 "nbt_data JSON" +
                 ")";
 

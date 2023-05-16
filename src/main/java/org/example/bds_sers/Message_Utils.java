@@ -25,23 +25,25 @@ public class Message_Utils {
     public static void Message(WebSocket webSocket,String message) throws IOException, SQLException {
         //验证这个ws与账号和密钥是否已经被绑定
         System.out.println("接收消息来自：" + webSocket.getRemoteSocketAddress().toString());
-        Client client = message_to_jsonObject(message);
-        if (Webrtc_Server_Management.getInstance().getGenericDatabase().findById(client.server_name) == null) {
+//        System.out.println("接收消息来自：" + message);
+        Client client = message_to_jsonObject(message);if (Webrtc_Server_Management.getInstance().getGenericDatabase().findById(client.server_name) == null) {
             Webrtc_Server_Management.getInstance().getGenericDatabase().save(client.server_name,webSocket);
-        } else if (Webrtc_Server_Management.getInstance().getGenericDatabase().findById(client.server_name) == webSocket) {
-            boolean serverData = read_file_json(filePath, client.server_name, client.server_key);
+        }
+        boolean serverData = read_file_json(filePath, client.server_name, client.server_key);
+        if (Webrtc_Server_Management.getInstance().getGenericDatabase().findById(client.server_name) == webSocket) {
             if (serverData) {
                 System.out.println("请求类型：" + client.type);
                 String sqltext = client.sql;
+                System.out.println(sqltext);
                 switch (client.type) {
                     case "Insert":
                         player = js_arr_toPlayer(sqltext);
                         Mysql_Management.getInstance().getMysql_ws_e();
-                        String insertSql = "INSERT INTO " + Mysql_WS_E.dataname + " (xuid, server_name, pos, nbt_data) VALUES (?, ?, ?, ?)";
+                        String insertSql = "INSERT INTO " + Mysql_WS_E.dataname + " (xuid, server_name, whitelist, nbt_data) VALUES (?, ?, ?, ?)";
                         try (PreparedStatement statement = Mysql_Management.getConnection().prepareStatement(insertSql)) {
                             statement.setString(1, player.getXuid());
                             statement.setString(2, player.getServerName());
-                            statement.setString(3, player.getPos());
+                            statement.setBoolean(3, player.getWhitelist());
                             statement.setString(4, player.getNbtData());
                             int rowsAffected = statement.executeUpdate();
 
@@ -62,12 +64,12 @@ public class Message_Utils {
                         // SQL插入语句
                         player = js_arr_toPlayer(sqltext);
                         Mysql_Management.getInstance().getMysql_ws_e();
-                        String updateSql = "UPDATE " + Mysql_WS_E.dataname + " SET server_name = ?, pos = ?, nbt_data = ? WHERE xuid = ?";
+                        String updateSql = "UPDATE " + Mysql_WS_E.dataname + " SET server_name = ?, whitelist = ?, nbt_data = ? WHERE xuid = ?";
 
                         try (PreparedStatement statement = Mysql_Management.getConnection().prepareStatement(updateSql)) {
                             // 设置更新语句的参数值
                             statement.setString(1, player.getServerName());
-                            statement.setString(2, player.getPos());
+                            statement.setBoolean(2, player.getWhitelist());
                             statement.setString(3, player.getNbtData());
                             statement.setString(4, player.getXuid());
 
@@ -119,6 +121,7 @@ public class Message_Utils {
                 }
             }
         }else {
+            System.out.println("已断开，请检查配置文件");
             webSocket.close();
         }
     }
@@ -133,9 +136,10 @@ public class Message_Utils {
         JsonObject jsonObject = jsonParser.parse(value).getAsJsonObject();
         String xuid = jsonObject.get("xuid").getAsString();
         String server_name = jsonObject.get("server_name").getAsString();
-        String pos = jsonObject.get("pos").getAsString();
+        boolean whitelist = jsonObject.get("whitelist").getAsBoolean();
         String nbt_data = jsonObject.get("nbt_data").getAsString();
-        return new Player(xuid, server_name, pos, nbt_data);
+
+        return new Player(xuid, server_name, whitelist, nbt_data);
     }
 
     /**
@@ -178,13 +182,13 @@ public class Message_Utils {
             Map<String, Object> firstRow = resultList.get(0);
             String xuid = (String) firstRow.get("xuid");
             String serverName = (String) firstRow.get("server_name");
-            String pos = (String) firstRow.get("pos");
+            boolean whitelist = (boolean) firstRow.get("whitelist");
             String nbtData = (String) firstRow.get("nbt_data");
 
             JsonObject serverObject = new JsonObject();
             serverObject.addProperty("xuid", xuid);
             serverObject.addProperty("server_name", serverName);
-            serverObject.addProperty("pos", pos);
+            serverObject.addProperty("whitelist", whitelist);
             serverObject.addProperty("nbt_data", nbtData);
             System.out.println("有数据");
             webSocket.send(re_json(serverObject.toString(), true));

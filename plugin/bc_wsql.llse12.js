@@ -1,5 +1,8 @@
 // LiteLoader-AIDS automatic generated
 /// <reference path="e:\bds_api/dts/helperlib/src/index.d.ts"/> 
+
+// LiteLoader-AIDS automatic generated
+/// <reference path="e:\bds_api/dts/helperlib/src/index.d.ts"/>
 /*************************************顶部初始化******************************* */
 const wsc = new WSClient();
 var pl = null;
@@ -19,6 +22,14 @@ var CONFIG_int = data.openConfig(path, "json", JSON.stringify(config_data));
 //服务器启动
 mc.listen("onServerStarted", () => {
     bc_log("作者qq:738270846,邮箱: banchen8964@gmail.com");
+
+    start_ser()
+
+    // log(stockInfoArray[0].stockName)// 测试语句
+});
+
+function start_ser()
+{
     var fileContent = File.readFrom(path);
     var stockData = JSON.parse(fileContent);
     var stockInfoArray = []; // 存放stockName和server_licensename的数组
@@ -38,29 +49,28 @@ mc.listen("onServerStarted", () => {
         if (connectWebSocket(stockInfoArray[i].stockName)) {
             //连接成功跳出循环
             tb_name=stockInfoArray[i].licensename;
-            tb_key=stockInfoArray[i]
+            tb_key=stockInfoArray[i].key;
             break;
         }
     }
-    // log(stockInfoArray[0].stockName)// 测试语句
-});
+}
 //玩家加入游戏
 mc.listen("onJoin", (play) => {
     inpl(play)
 });
 //玩家退出游戏
 mc.listen("onLeft", function (pl) {
-    updata(pl)
+    updata(pl,true)
 })
 //玩家物品栏变化
-mc.listen("onInventoryChange", (player) => updata(player))
+mc.listen("onInventoryChange", (player) => updata(player,false))
 //玩家丢东西
-mc.listen("onDropItem", (player) => updata(player))
+mc.listen("onDropItem", (player) => updata(player,false))
 //玩家死亡
-mc.listen("onPlayerDie", (player) => updata(player))
+mc.listen("onPlayerDie", (player) => updata(player,false))
 //效果获得
 mc.listen("onEffectAdded", (pl) => {
-    updata(pl)
+    updata(player,false)
 })
 /**********************************ws监听组******************************************** */
 
@@ -73,9 +83,16 @@ function handleTextReceived(msg) {
                 const play_xuid = jsonArray_t.xuid;
                 var str_data = JSON.parse(jsonArray_t.nbt_data);
                 let players = mc.getPlayer(play_xuid)
-                pl_con_s(players, str_data.Inventory, str_data.OffHand, str_data.EnderChest, str_data.Armor, str_data.AllEffects);
-                pl.refreshItems()
-                updata(players)
+                if(jsonArray_t.whitelist)
+                {
+                    pl_con_s(players, str_data.Inventory, str_data.OffHand, str_data.EnderChest, str_data.Armor, str_data.AllEffects);
+                    pl.refreshItems()
+                    updata(players,false)
+                }else
+                {
+                    pl.kick("请勿重复登录游戏")
+                }
+
                 break;
             case "chat":
                 if (all_msg != js_msg.text) {
@@ -88,7 +105,7 @@ function handleTextReceived(msg) {
         const data = {
             xuid: pl.xuid,
             server_name: tb_name,
-            pos: pl.pos.toString(),
+            whitelist: true,
             nbt_data: pl_json(pl)
         };
         sendQuery("Insert", JSON.stringify(data));
@@ -98,12 +115,12 @@ wsc.listen("onTextReceived", handleTextReceived);
 
 wsc.listen("onError", (msg) => {
     log("发生错误: " + msg);
-    connectWebSocket()
+    start_ser()
 });
 
 wsc.listen("onLostConnection", (code) => {
     log("连接丢失，错误码: " + code);
-    connectWebSocket()
+    start_ser()
 });
 
 /***************************************监听组分割线*********************************** */
@@ -115,6 +132,7 @@ function connectWebSocket(ser_uri) {
         return true;
     } else {
         colorLog("green", "[同步系统]:连接失败");
+        start_ser()
         return false;
     }
 }
@@ -124,7 +142,7 @@ function inpl(play) {
     const data = {
         xuid: play.xuid,
         server_name: tb_name,
-        pos: play.pos.toString(),
+        whitelist: true,
         nbt_data: pl_json(play)
     };
     sendQuery("Select", JSON.stringify(data));
@@ -141,12 +159,12 @@ function sendQuery(type, sql) {
     wsc.send(JSON.stringify(json));
 }
 //更新方法
-function updata(player) {
+function updata(player,whitelist) {
     try {
         const data = {
             xuid: player.xuid,
             server_name: tb_name,
-            pos: player.pos.toString(),
+            whitelist: whitelist,
             nbt_data: pl_json(player)
         };
         sendQuery("Update", JSON.stringify(data));

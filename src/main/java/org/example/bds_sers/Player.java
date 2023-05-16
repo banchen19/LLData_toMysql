@@ -5,22 +5,22 @@ public class Player {
 
     String xuid;
     String serverName;
-    String pos;
+    boolean whitelist;
     String nbtData;
 
-    public Player(String xuid, String serverName, String pos, String nbtData) {
+    public Player(String xuid, String serverName, boolean pos, String nbtData) {
         this.xuid = xuid;
         this.serverName = serverName;
-        this.pos = pos;
+        this.whitelist = pos;
         this.nbtData = nbtData;
     }
 
-    public String getPos() {
-        return pos;
+    public boolean getWhitelist() {
+        return whitelist;
     }
 
-    public void setPos(String pos) {
-        this.pos = pos;
+    public void setWhitelist(boolean whitelist) {
+        this.whitelist = whitelist;
     }
 
     public String getXuid() {
