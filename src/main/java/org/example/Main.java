@@ -33,7 +33,7 @@ public class Main {
                 readConfigFile(configFile_yml);//同时完成启动连接数据库
 
                 Mysql_Management mysqlManagement=Mysql_Management.getInstance();
-                if(!mysqlManagement.getMysqlDbUtil().isTableExists(Mysql_Management.getConnection(), "bc_bds_players_data"))
+                if(!mysqlManagement.getMysqlDbUtil().isTableExists(Mysql_Management.getConnection(), mysqlManagement.getMysql_ws_e().dataname))
                 {
                     System.out.println("数据库表不存在");
                     Mysql_Management.getInstance().getMysqlDbUtil().creatTables();

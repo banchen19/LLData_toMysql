@@ -9,7 +9,6 @@ public class Client {
     String server_key;
     String type;
     String sql;
-    String json_str;
     public Client(String server_name, String server_key, String type, String text) {
         this.server_name = server_name;
         this.server_key = server_key;
