@@ -4,6 +4,8 @@
 const wsc = new WSClient();
 var pl = null;
 var all_msg;
+var tb_name;
+var tb_key;
 var path = ".\\plugins\\BC\\bc_mysqlconfig\\config.json";
 let config_data = {
     "ws://127.0.0.1:8887": {
@@ -25,7 +27,8 @@ mc.listen("onServerStarted", () => {
         var stockInfo = stockData[stockName];
         var stockInfoEntry = {
             stockName: stockName,
-            licensename: stockInfo.server_licensename
+            licensename: stockInfo.server_licensename,
+            key: stockInfo.server_licenseKey
         };
         stockInfoArray.push(stockInfoEntry);
     }
@@ -34,6 +37,8 @@ mc.listen("onServerStarted", () => {
     for (var i = 0; i < stockInfoArray.length; i++) {
         if (connectWebSocket(stockInfoArray[i].stockName)) {
             //连接成功跳出循环
+            tb_name=stockInfoArray[i].licensename;
+            tb_key=stockInfoArray[i]
             break;
         }
     }
@@ -82,7 +87,7 @@ function handleTextReceived(msg) {
     } else {
         const data = {
             xuid: pl.xuid,
-            server_name: CONFIG_int.server_licensename,
+            server_name: tb_name,
             pos: pl.pos.toString(),
             nbt_data: pl_json(pl)
         };
@@ -112,14 +117,13 @@ function connectWebSocket(ser_uri) {
         colorLog("green", "[同步系统]:连接失败");
         return false;
     }
-    return false;
 }
 /**************************************操作以及返回更新****************************************** */
 //初步查询判断插入
 function inpl(play) {
     const data = {
         xuid: play.xuid,
-        server_name: CONFIG_int.server_licensename,
+        server_name: tb_name,
         pos: play.pos.toString(),
         nbt_data: pl_json(play)
     };
@@ -129,8 +133,8 @@ function inpl(play) {
 //发送语句
 function sendQuery(type, sql) {
     const json = {
-        server_licenseKey: CONFIG_int.server_licenseKey,
-        server_licensename: CONFIG_int.server_licensename,
+        server_licensename: tb_name,
+        server_licenseKey: tb_key,
         type: type,
         sql: sql,
     };
@@ -141,7 +145,7 @@ function updata(player) {
     try {
         const data = {
             xuid: player.xuid,
-            server_name: CONFIG_int.server_licensename,
+            server_name: tb_name,
             pos: player.pos.toString(),
             nbt_data: pl_json(player)
         };
