@@ -70,7 +70,7 @@ mc.listen("onDropItem", (player) => updata(player,false))
 mc.listen("onPlayerDie", (player) => updata(player,false))
 //效果获得
 mc.listen("onEffectAdded", (pl) => {
-    updata(player,false)
+    updata(pl,false)
 })
 /**********************************ws监听组******************************************** */
 
