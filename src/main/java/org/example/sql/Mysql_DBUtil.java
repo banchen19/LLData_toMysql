@@ -60,7 +60,7 @@ public class Mysql_DBUtil {
 
     //创建表语句
     public void creatTables() {
-        String createTableSql = "CREATE TABLE bc_bds_players_data (" +
+        String createTableSql = "CREATE TABLE "+Mysql_Management.getInstance().getMysql_ws_e().dataname+" (" +
                 "id INT PRIMARY KEY AUTO_INCREMENT," +
                 "xuid VARCHAR(50) NOT NULL UNIQUE," +
                 "server_name VARCHAR(100) NOT NULL," +
