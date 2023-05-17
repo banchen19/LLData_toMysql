@@ -38,6 +38,7 @@ public class Main {
                     System.out.println("数据库表不存在");
                     Mysql_Management.getInstance().getMysqlDbUtil().creatTables();
                     System.out.println("表初始化完成");
+                    readConfigFile(configFile_yml);//同时完成启动连接数据库
                 }
             } else {
                 System.out.println("ws服务端开启失败");
